@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 
 
@@ -88,6 +89,7 @@ class Post(PublishedModel):
         null=True,
         verbose_name='Категория'
     )
+    image = models.ImageField('Фото', upload_to='posts_images/', blank=True)
 
     class Meta:
         verbose_name = 'публикация'
@@ -95,3 +97,17 @@ class Post(PublishedModel):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    text = models.TextField('Текст комментария')
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('created_at',)
