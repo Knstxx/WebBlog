@@ -10,9 +10,6 @@ urlpatterns = [
          views.IndexListView.as_view(),
          name='index'
          ),
-    path('login_only/',
-         views.simple_view
-         ),
     path('profile/edit/',
          views.ProfileUpdateView.as_view(),
          name='edit_profile'),

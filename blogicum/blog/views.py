@@ -1,11 +1,6 @@
 import datetime as dt
-import pytz
-# нашёл библиотеку часовых поясов.
-# Есть возможность настраивать работу сайта, в зависимости от региона
 
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
@@ -19,13 +14,7 @@ from blog.models import Post, Category, User, Comment
 from .forms import PostForm, CommentForm, UserUpdateForm
 
 
-TZ = pytz.timezone('UTC')
 PAGIN_COUNT = 10
-
-
-@login_required
-def simple_view(request):
-    return HttpResponse('Страница для залогиненных пользователей!')
 
 
 class IndexListView(ListView):
@@ -35,8 +24,10 @@ class IndexListView(ListView):
     queryset = Post.objects.filter(
         is_published=True,
         category__is_published=True,
-        pub_date__lt=dt.datetime.now(TZ)
-    ).annotate(comment_count=Count('comments'))
+        pub_date__lt=dt.datetime.now()
+    ).annotate(comment_count=Count('comments')).select_related(
+        'category', 'author', 'location'
+        )
     ordering = '-pub_date'
     paginate_by = PAGIN_COUNT
 
@@ -47,10 +38,9 @@ class PostDetailView(DetailView):
     pk_url_kwarg = 'post_id'
 
     def get_object(self, queryset=None):
-        post = super().get_object(queryset)
+        post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
         current_user = self.request.user
-        is_owner = (current_user.is_authenticated
-                    and current_user == post.author)
+        is_owner = current_user == post.author
         if (not is_owner and not post.is_published):
             raise Http404("Страница не найдена")
         return post
@@ -71,7 +61,7 @@ class ProfileListView(ListView):
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
         current_user = self.request.user
-        is_owner = current_user.is_authenticated and current_user == user
+        is_owner = current_user == user
         if is_owner:
             return Post.objects.filter(
                 author=user,
@@ -80,7 +70,7 @@ class ProfileListView(ListView):
             return Post.objects.filter(
                 is_published=True,
                 author=user,
-                pub_date__lt=dt.datetime.now(TZ)
+                pub_date__lt=dt.datetime.now()
             ).annotate(comment_count=Count('comments')).order_by('-pub_date')
 
     def get_context_data(self, **kwargs):
@@ -96,12 +86,12 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'blog/user.html'
 
     def get_object(self,):
-        user = get_object_or_404(User, username=self.request.user.username)
+        user = get_object_or_404(User, username=self.request.user)
         return user
 
     def get_success_url(self):
         return reverse('blog:profile', kwargs={
-            'username': self.request.user.username
+            'username': self.request.user
         })
 
 
@@ -114,7 +104,7 @@ class CategoryListView(ListView):
         return Post.objects.filter(
             is_published=True,
             category__slug=self.kwargs['category_slug'],
-            pub_date__lt=dt.datetime.now(TZ)
+            pub_date__lt=dt.datetime.now()
         ).annotate(comment_count=Count('comments')).order_by('-pub_date')
 
     def get_context_data(self, **kwargs):
@@ -137,10 +127,12 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        self.success_url = reverse('blog:profile', kwargs={
-            'username': self.request.user.username
-        })
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('blog:profile', kwargs={
+            'username': self.request.user
+        })
 
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
