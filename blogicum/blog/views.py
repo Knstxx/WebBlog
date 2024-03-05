@@ -27,7 +27,7 @@ class IndexListView(ListView):
         pub_date__lt=dt.datetime.now()
     ).annotate(comment_count=Count('comments')).select_related(
         'category', 'author', 'location'
-        )
+    )
     ordering = '-pub_date'
     paginate_by = PAGIN_COUNT
 
