@@ -21,13 +21,13 @@ class IndexListView(ListView):
 
     model = Post
     template_name = 'blog/index.html'
-    queryset = Post.objects.filter(
+    queryset = Post.objects.select_related(
+        'category', 'author', 'location'
+    ).filter(
         is_published=True,
         category__is_published=True,
         pub_date__lt=dt.datetime.now()
-    ).annotate(comment_count=Count('comments')).select_related(
-        'category', 'author', 'location'
-    )
+    ).annotate(comment_count=Count('comments'))
     ordering = '-pub_date'
     paginate_by = PAGIN_COUNT
 
@@ -63,13 +63,12 @@ class ProfileListView(ListView):
         current_user = self.request.user
         is_owner = current_user == user
         if is_owner:
-            return Post.objects.filter(
-                author=user,
-            ).annotate(comment_count=Count('comments')).order_by('-pub_date')
+            return user.posts.all().annotate(
+                comment_count=Count('comments')
+            ).order_by('-pub_date')
         else:
-            return Post.objects.filter(
+            return user.posts.all().filter(
                 is_published=True,
-                author=user,
                 pub_date__lt=dt.datetime.now()
             ).annotate(comment_count=Count('comments')).order_by('-pub_date')
 
@@ -85,9 +84,8 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     form_class = UserUpdateForm
     template_name = 'blog/user.html'
 
-    def get_object(self,):
-        user = get_object_or_404(User, username=self.request.user)
-        return user
+    def get_object(self):
+        return self.request.user
 
     def get_success_url(self):
         return reverse('blog:profile', kwargs={
