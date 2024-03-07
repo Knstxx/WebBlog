@@ -66,11 +66,10 @@ class ProfileListView(ListView):
             return user.posts.all().annotate(
                 comment_count=Count('comments')
             ).order_by('-pub_date')
-        else:
-            return user.posts.all().filter(
-                is_published=True,
-                pub_date__lt=dt.datetime.now()
-            ).annotate(comment_count=Count('comments')).order_by('-pub_date')
+        return user.posts.all().filter(
+            is_published=True,
+            pub_date__lt=dt.datetime.now()
+        ).annotate(comment_count=Count('comments')).order_by('-pub_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
