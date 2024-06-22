@@ -1,37 +1,24 @@
 # Blogicum
-Проект веб-блога, реализованный с применением фреймворка Django. В данной версии проекта появилась возможность регистрации пользователей, написания пользователями блогов, комментирования блогов, просмотра авторов на сайте.
+О проекте:
+1. WebBlog - социальная сеть.
+2. Над проектом работали:
+<a href="https://github.com/Knstxx" target="_blank">Константин</a>
+
+Сайт-блог для публикации собственных постов с медиа и возможностью комментирования чужих работ. Реализован на Django. Настроена регистрация пользователей, есть система восстановления через e-mail. Полностью прописан бэкенд для HTML, CSS и JavaScript шаблонов.
+
+Tech.Stack: Python, Django, HTML, CSS
 # Как запустить проект:
-
-Клонировать репозиторий и перейти в него в командной строке:
-
-```
-git clone https://github.com/yandex-praktikum/django_sprint3
-```
-
-```
-cd anfisa2sprint
-```
 
 Cоздать и активировать виртуальное окружение:
 
-Windows
-```
-python -m venv venv
-source venv/Scripts/activate
-```
-Linux/macOS
 ```
 python3 -m venv venv
+```
+
+```
 source venv/bin/activate
 ```
 
-Обновить PIP
-
-Windows
-```
-python -m pip install --upgrade pip
-```
-Linux/macOS
 ```
 python3 -m pip install --upgrade pip
 ```
@@ -44,26 +31,12 @@ pip install -r requirements.txt
 
 Выполнить миграции:
 
-Windows
 ```
-python manage.py makemigrations
-python manage.py migrate
-```
-
-Linux/macOS
-```
-python3 manage.py makemigrations
 python3 manage.py migrate
 ```
 
 Запустить проект:
 
-Windows
-```
-python manage.py runserver
-```
-
-Linux/macOS
 ```
 python3 manage.py runserver
 ```
