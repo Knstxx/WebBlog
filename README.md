@@ -1,8 +1,8 @@
-# Blogicum
+# WebBlog
 О проекте:
 1. WebBlog - социальная сеть.
 2. Над проектом работали:
-<a href="https://github.com/Knstxx" target="_blank">Константин</a>
+<a href="https://github.com/Knstxx" target="_blank">Konstantin Khotnog</a>
 
 Сайт-блог для публикации собственных постов с медиа и возможностью комментирования чужих работ. Реализован на Django. Настроена регистрация пользователей, есть система восстановления через e-mail. Полностью прописан бэкенд для HTML, CSS и JavaScript шаблонов.
 
